@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mjava.bookstore.mapper.CategoryMapper">
+	<select id="findAllCategory" resultType="category">
+		select * from category
+	</select>
+	
+	<insert id="addCategory" parameterType="category">
+		insert into category (cid,cname) values (#{cid},#{cname})
+	</insert>
+	
+	<delete id="deleteCategory" parameterType="java.lang.String">
+		delete from category where cid = #{cid}
+	</delete>
+	
+	<select id="findCategoryByCid" parameterType="java.lang.String" resultType="category">
+		select * from category where cid = #{cid}
+	</select>
+	
+	<update id="updateCategory" parameterType="category">
+		update category set cname = #{cname} where cid = #{cid}
+	</update>
+</mapper>

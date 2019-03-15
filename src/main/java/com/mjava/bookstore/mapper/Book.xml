@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+    <mapper namespace="com.mjava.bookstore.mapper.BookMapper">
+        <select id="findAllBook" resultType="book">
+        	select * from book where del=false
+        </select>
+        
+        <select id="findBookByCategory" resultType="book" parameterType="java.lang.String">
+        	select * from book where cid = #{cid} and del = false
+        </select>
+        
+        <select id="findBookByBid" resultType="book" parameterType="java.lang.String">
+        	select * from book where bid = #{bid} and del = false
+        </select>
+        
+        <select id="getCountByCid" resultType="int" parameterType="java.lang.String">
+        	select count(*) from book where cid =#{cid}
+        </select>
+        
+        <select id="findBookAndBookCategoryBybid" resultMap="BookAndCategoryResultMap" parameterType="java.lang.String">
+        	select book.*,category.* from book,category where book.cid = category.cid and book.bid=#{book.bid}
+        </select>
+        
+        <resultMap type="Book" id="BookAndCategoryResultMap">
+        	<id column="bid" property="bid"/>
+        	<result column="bname" property="bname"/>
+        	<result column="price" property="price"/>
+        	<result column="author" property="author"/>
+        	<result column="image" property="image"/>
+        	<association property="category" javaType="com.mjava.bookstore.domain.Category">
+        		<id column="cid" property="cid"/>
+        		<result column="cname" property="cname"/>
+        	</association>
+        </resultMap>
+        
+        
+        <insert id="addBook" parameterType="com.mjava.bookstore.domain.Book">
+        	insert into book values (#{bid},#{bname},#{price},#{author},#{image},#{category.cid},#{del})
+        </insert>
+        
+        <update id="editBook" parameterType="com.mjava.bookstore.domain.Book">
+        	update book set bname = #{bname},price = #{price},author = #{author},image =#{image},cid=#{category.cid} where bid=#{bid}
+        </update>
+        
+        <update id="deleteBook" parameterType="java.lang.String">
+        	update book set del = 1 where bid = #{bid}
+        </update>
+    </mapper> 

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mjava.bookstore.mapper.OrderMapper">
+	<!-- 插入订单 -->
+	<insert id="addOrder" parameterType="order">
+		insert into orders (oid,ordertime,total,state,uid,address)
+		values(#{oid},#{ordertime},#{total},#{state},#{owner.uid},#{address})
+	</insert>
+
+	<!-- 插入订单条目 -->
+	<insert id="addOrderItemList" parameterType="java.util.List">
+		insert into orderitem (iid,count,subtotal,oid,bid) values
+		<foreach collection="list" index="index" item="item"
+			separator=",">
+			(#{item.iid},#{item.count},#{item.subtotal},#{item.order.oid},#{item.book.bid})
+		</foreach>
+	</insert>
+	
+	<select id="findOrdersByUid" parameterType="java.lang.String" resultMap="findOrdersResultMap">
+		select orders.*,orderitem.*,book.*,tb_user.* from orders,orderitem,book,tb_user
+	 	WHERE orders.oid = orderitem.oid and orderitem.bid=book.bid and orders.uid=tb_user.uid and orders.uid=#{order.uid};
+	</select>
+	
+		
+	<select id="findOrderByOid" parameterType="java.lang.String" resultMap="findOrdersResultMap">
+		select orders.*,orderitem.*,book.*,tb_user.* from orders,orderitem,book,tb_user
+	 	WHERE orders.oid = orderitem.oid and orderitem.bid=book.bid and orders.uid=tb_user.uid and orders.oid=#{order.oid};
+	</select>
+	
+	<select id="findStateByOid" parameterType="java.lang.String" resultType="int">
+		select state from orders where oid=#{oid}
+	</select>
+	
+	<update id="updateStated" >
+		update orders set state=#{1} where oid=#{0} 
+	</update>
+	
+	<resultMap type="Order" id="findOrdersResultMap">
+		<id column="oid" property="oid"/>
+		<result column="ordertime" property="ordertime"/>
+		<result column="total" property="total"/>
+		<result column="state" property="state"/>
+		<result column="address" property="address"/>
+			<association property="owner" javaType="com.mjava.bookstore.domain.User">
+				<id column="uid" property="uid"/>
+				<result column="username" property="username"/>
+			</association>
+			<!-- 对应orderlist -->
+			<collection property="orderItemList" ofType="com.mjava.bookstore.domain.OrderItem">
+				<id column="iid" property="iid"/>
+				<result column="count" property="count"/>
+				<result column="subtotal" property="subtotal"/>
+				
+				<!-- 一个订单条目对应一本书 -->
+				<association property="book" javaType="com.mjava.bookstore.domain.Book">
+					<id column="bid" property="bid"/>
+					<result column="bname" property="bname"/>
+					<result column="price" property="price"/>
+					<result column="author" property="author"/>
+					<result column="image" property="image"/>
+				</association>	
+			</collection>
+	</resultMap>
+
+	<select id="findAllOrders" resultMap="findOrdersResultMap">
+		select orders.*,orderitem.*,book.*,tb_user.* from orders,orderitem,book,tb_user
+	 	WHERE orders.oid = orderitem.oid and orderitem.bid=book.bid and orders.uid=tb_user.uid 
+	</select>
+	
+	<select id="findOrdersNotPaid" resultMap="findOrdersResultMap">
+		select orders.*,orderitem.*,book.*,tb_user.* from orders,orderitem,book,tb_user
+	 	WHERE orders.oid = orderitem.oid and orderitem.bid=book.bid and orders.uid=tb_user.uid and orders.state=1
+	</select>
+	
+	<select id="findOrdersHavePaid" resultMap="findOrdersResultMap">
+		select orders.*,orderitem.*,book.*,tb_user.* from orders,orderitem,book,tb_user
+	 	WHERE orders.oid = orderitem.oid and orderitem.bid=book.bid and orders.uid=tb_user.uid and orders.state=2
+	</select>
+	
+	<select id="findOrdersNotReceived" resultMap="findOrdersResultMap">
+		select orders.*,orderitem.*,book.*,tb_user.* from orders,orderitem,book,tb_user
+	 	WHERE orders.oid = orderitem.oid and orderitem.bid=book.bid and orders.uid=tb_user.uid and orders.state=3
+	</select>
+	
+	<select id="findOrdersFinished" resultMap="findOrdersResultMap">
+		select orders.*,orderitem.*,book.*,tb_user.* from orders,orderitem,book,tb_user
+	 	WHERE orders.oid = orderitem.oid and orderitem.bid=book.bid and orders.uid=tb_user.uid and orders.state=4
+	</select>
+	
+</mapper>
+    
